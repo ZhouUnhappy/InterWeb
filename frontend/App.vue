@@ -13,25 +13,29 @@
           @click="toggleFilter('notSubmitted')"
           :class="['btn-filter', { active: activeFilter === 'notSubmitted' }]"
         >
-          {{ activeFilter === 'notSubmitted' ? '✓' : '' }} 未投递
+          <span class="filter-check">{{ activeFilter === 'notSubmitted' ? '✓' : '' }}</span>
+          <span>未投递</span>
         </button>
         <button
           @click="toggleFilter('submittedNointerv')"
           :class="['btn-filter', { active: activeFilter === 'submittedNointerv' }]"
         >
-          {{ activeFilter === 'submittedNointerv' ? '✓' : '' }} 已投递
+          <span class="filter-check">{{ activeFilter === 'submittedNointerv' ? '✓' : '' }}</span>
+          <span>已投递</span>
         </button>
         <button
           @click="toggleFilter('hasinterv')"
           :class="['btn-filter', { active: activeFilter === 'hasinterv' }]"
         >
-          {{ activeFilter === 'hasinterv' ? '✓' : '' }} 有面试
+          <span class="filter-check">{{ activeFilter === 'hasinterv' ? '✓' : '' }}</span>
+          <span>有面试</span>
         </button>
         <button
           @click="toggleFilter('noResume')"
           :class="['btn-filter', { active: activeFilter === 'noResume' }]"
         >
-          {{ activeFilter === 'noResume' ? '✓' : '' }} 未创建简历
+          <span class="filter-check">{{ activeFilter === 'noResume' ? '✓' : '' }}</span>
+          <span>未创建简历</span>
         </button>
         <button @click="clearFilters" class="btn-secondary">清除筛选</button>
         <button @click="showAddCompany = true" class="btn-primary">+ 添加公司</button>
@@ -91,6 +95,10 @@
         <div class="modal-content">
           <h2>编辑公司</h2>
           <input v-model="editCompany.name" placeholder="公司名称" class="input" @keyup.enter="updateCompany">
+          <label class="checkbox-row">
+            <input v-model="editCompany.noPosition" type="checkbox">
+            <span>无岗</span>
+          </label>
           <div class="modal-actions">
             <button @click="updateCompany" class="btn-primary">确定</button>
             <button @click="showEditCompany = false" class="btn-secondary">取消</button>
@@ -226,7 +234,8 @@
             </div>
           </div>
 
-          <div v-if="company.products.length > 0" class="products-list">
+          <div v-if="company.noPosition || company.products.length > 0" class="products-list">
+            <span v-if="company.noPosition" class="no-position-tag">无岗</span>
             <div
               v-for="(product, pIndex) in getFilteredProducts(company)"
               :key="product.id"
@@ -275,11 +284,7 @@
                 💬 {{ product.notes }}
               </div>
 
-              <div v-if="product.intervs.length === 0" class="no-interv">
-                暂无面试记录
-              </div>
-
-              <div v-else class="interv-list">
+              <div v-if="product.intervs.length > 0" class="interv-list">
                 <div v-for="(interv, index) in product.intervs" :key="interv.id" class="interv-item">
                   <div class="interv-badge">第{{ index + 1 }}轮</div>
                   <div class="interv-type">{{ interv.type }}</div>
@@ -336,7 +341,7 @@ const newProduct = ref({ name: '', companyId: null })
 const newinterv = ref({ type: '电话', customType: '', date: '', notes: '', companyId: null, productId: null })
 
 // 编辑表单数据
-const editCompany = ref({ id: null, name: '' })
+const editCompany = ref({ id: null, name: '', noPosition: false })
 const editProduct = ref({ id: null, companyId: null, name: '' })
 const editinterv = ref({ id: null, companyId: null, productId: null, type: '', customType: '', date: '', notes: '' })
 const editProductNote = ref({ id: null, companyId: null, notes: '' })
@@ -881,7 +886,8 @@ async function addCompany() {
 function openEditCompany(company) {
   editCompany.value = {
     id: company.id,
-    name: company.name
+    name: company.name,
+    noPosition: Boolean(company.noPosition)
   }
   showEditCompany.value = true
 }
@@ -905,11 +911,15 @@ async function updateCompany() {
     await fetch(`${API_BASE}/companies/${editCompany.value.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: companyName })
+      body: JSON.stringify({
+        name: companyName,
+        noPosition: editCompany.value.noPosition
+      })
     })
     const company = companies.value.find(c => c.id === editCompany.value.id)
     if (company) {
       company.name = companyName
+      company.noPosition = editCompany.value.noPosition
     }
     showEditCompany.value = false
   } catch (error) {
