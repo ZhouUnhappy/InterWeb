@@ -106,15 +106,27 @@ header h1 {
   background: white;
   color: #666;
   border: 2px solid #e0e0e0;
-  padding: 10px 18px;
+  padding: 10px 12px;
   border-radius: 8px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  width: 96px;
   font-size: 14px;
   font-weight: 600;
   transition: all 0.2s;
+}
+
+.btn-filter.wide {
+  width: 128px;
+}
+
+.filter-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .filter-check {

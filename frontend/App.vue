@@ -10,32 +10,40 @@
           class="search-input"
         />
         <button
+          @click="toggleFilter('noResume')"
+          :class="['btn-filter', 'wide', { active: activeFilter === 'noResume' }]"
+        >
+          <span class="filter-content">
+            <span v-if="activeFilter === 'noResume'" class="filter-check">✓</span>
+            <span>未创建简历</span>
+          </span>
+        </button>
+        <button
           @click="toggleFilter('notSubmitted')"
           :class="['btn-filter', { active: activeFilter === 'notSubmitted' }]"
         >
-          <span class="filter-check">{{ activeFilter === 'notSubmitted' ? '✓' : '' }}</span>
-          <span>未投递</span>
+          <span class="filter-content">
+            <span v-if="activeFilter === 'notSubmitted'" class="filter-check">✓</span>
+            <span>未投递</span>
+          </span>
         </button>
         <button
           @click="toggleFilter('submittedNointerv')"
           :class="['btn-filter', { active: activeFilter === 'submittedNointerv' }]"
         >
-          <span class="filter-check">{{ activeFilter === 'submittedNointerv' ? '✓' : '' }}</span>
-          <span>已投递</span>
+          <span class="filter-content">
+            <span v-if="activeFilter === 'submittedNointerv'" class="filter-check">✓</span>
+            <span>已投递</span>
+          </span>
         </button>
         <button
           @click="toggleFilter('hasinterv')"
           :class="['btn-filter', { active: activeFilter === 'hasinterv' }]"
         >
-          <span class="filter-check">{{ activeFilter === 'hasinterv' ? '✓' : '' }}</span>
-          <span>有面试</span>
-        </button>
-        <button
-          @click="toggleFilter('noResume')"
-          :class="['btn-filter', { active: activeFilter === 'noResume' }]"
-        >
-          <span class="filter-check">{{ activeFilter === 'noResume' ? '✓' : '' }}</span>
-          <span>未创建简历</span>
+          <span class="filter-content">
+            <span v-if="activeFilter === 'hasinterv'" class="filter-check">✓</span>
+            <span>有面试</span>
+          </span>
         </button>
         <button @click="clearFilters" class="btn-secondary">清除筛选</button>
         <button @click="showAddCompany = true" class="btn-primary">+ 添加公司</button>
