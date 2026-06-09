@@ -10,6 +10,15 @@
           class="search-input"
         />
         <button
+          @click="toggleFilter('noPosition')"
+          :class="['btn-filter', { active: activeFilter === 'noPosition' }]"
+        >
+          <span class="filter-content">
+            <span v-if="activeFilter === 'noPosition'" class="filter-check">✓</span>
+            <span>无岗</span>
+          </span>
+        </button>
+        <button
           @click="toggleFilter('noResume')"
           :class="['btn-filter', 'wide', { active: activeFilter === 'noResume' }]"
         >
@@ -409,7 +418,17 @@ const filteredCompanies = computed(() => {
     result = result.map(company => {
       let filteredProducts = company.products
 
-      if (activeFilter.value === 'notSubmitted') {
+      if (activeFilter.value === 'noPosition') {
+        // 筛选无岗的公司
+        if (company.noPosition) {
+          return company
+        }
+        return null
+      } else if (activeFilter.value === 'notSubmitted') {
+        // 未投递筛选：排除无岗公司
+        if (company.noPosition) {
+          return null
+        }
         filteredProducts = filteredProducts.filter(p => !p.submitted)
         // 如果有未投递的产品，或者公司没有任何产品，则显示该公司
         if (filteredProducts.length > 0 || company.products.length === 0) {
@@ -928,6 +947,8 @@ async function updateCompany() {
     if (company) {
       company.name = companyName
       company.noPosition = editCompany.value.noPosition
+      // 强制触发响应式更新
+      companies.value = [...companies.value]
     }
     showEditCompany.value = false
   } catch (error) {

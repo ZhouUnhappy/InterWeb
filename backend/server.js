@@ -55,7 +55,7 @@ app.post('/api/companies', async (req, res) => {
     id: Date.now(),
     name: req.body.name,
     resumeCreated: req.body.resumeCreated !== undefined ? req.body.resumeCreated : false,
-    noPosition: req.body.noPosition === true,
+    noPosition: Boolean(req.body.noPosition),
     products: [],
     order: companies.length
   }
@@ -86,7 +86,7 @@ app.put('/api/companies/:id', async (req, res) => {
       company.resumeCreated = req.body.resumeCreated
     }
     if (req.body.noPosition !== undefined) {
-      company.noPosition = req.body.noPosition === true
+      company.noPosition = Boolean(req.body.noPosition)
     }
     if (req.body.order !== undefined) {
       company.order = req.body.order
