@@ -213,6 +213,42 @@
           </div>
         </div>
 
+        <!-- 概览统计 -->
+        <div class="overview-section">
+          <div class="overview-header">
+            <h2>📊 概览（公司）</h2>
+            <div v-if="stats.noResume > 0" class="no-resume-warning">
+              ⚠️ 有 {{ stats.noResume }} 家公司未创建简历
+            </div>
+          </div>
+          <div class="overview-stats">
+            <div class="stat-item stat-total">
+              <span class="stat-label">总计</span>
+              <span class="stat-value">{{ stats.total }}</span>
+            </div>
+            <div class="stat-item stat-no-position" @click="toggleFilter('noPosition')" :class="{ active: activeFilter === 'noPosition' }">
+              <span class="stat-label">无岗</span>
+              <span class="stat-value">{{ stats.noPosition }}</span>
+              <span class="stat-percent">{{ getPercent(stats.noPosition, stats.total) }}</span>
+            </div>
+            <div class="stat-item stat-not-submitted" @click="toggleFilter('notSubmitted')" :class="{ active: activeFilter === 'notSubmitted' }">
+              <span class="stat-label">未投递</span>
+              <span class="stat-value">{{ stats.notSubmitted }}</span>
+              <span class="stat-percent">{{ getPercent(stats.notSubmitted, stats.total) }}</span>
+            </div>
+            <div class="stat-item stat-submitted" @click="toggleFilter('submittedNointerv')" :class="{ active: activeFilter === 'submittedNointerv' }">
+              <span class="stat-label">已投递</span>
+              <span class="stat-value">{{ stats.submitted }}</span>
+              <span class="stat-percent">{{ getPercent(stats.submitted, stats.total) }}</span>
+            </div>
+            <div class="stat-item stat-has-interv" @click="toggleFilter('hasinterv')" :class="{ active: activeFilter === 'hasinterv' }">
+              <span class="stat-label">有面试</span>
+              <span class="stat-value">{{ stats.hasInterv }}</span>
+              <span class="stat-percent">{{ getPercent(stats.hasInterv, stats.total) }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 公司列表 -->
         <div class="companies-list">
           <div
@@ -533,6 +569,55 @@ function getResumeStatusText(status) {
   if (status === 'unnecessary') return '○ 无需简历'
   return '✗ 未创建简历'
 }
+
+// 计算百分比
+function getPercent(value, total) {
+  if (total === 0) return '0%'
+  return Math.round((value / total) * 100) + '%'
+}
+
+// 统计数据
+const stats = computed(() => {
+  const total = companies.value.length
+
+  // 无岗公司数
+  const noPosition = companies.value.filter(c => c.noPosition).length
+
+  // 未创建简历公司数（所有公司，不区分无岗）
+  const noResume = companies.value.filter(c =>
+    c.resumeCreated === false || c.resumeCreated === undefined
+  ).length
+
+  // 未投递公司数（排除无岗）
+  const notSubmitted = companies.value.filter(c => {
+    if (c.noPosition) return false
+    // 没有产品，或所有产品都未投递
+    return c.products.length === 0 || c.products.every(p => !p.submitted)
+  }).length
+
+  // 已投递公司数（排除无岗，有产品已投递但没有面试）
+  const submitted = companies.value.filter(c => {
+    if (c.noPosition) return false
+    const hasSubmitted = c.products.some(p => p.submitted)
+    const hasInterv = c.products.some(p => p.intervs && p.intervs.length > 0)
+    return hasSubmitted && !hasInterv
+  }).length
+
+  // 有面试公司数（排除无岗）
+  const hasInterv = companies.value.filter(c => {
+    if (c.noPosition) return false
+    return c.products.some(p => p.intervs && p.intervs.length > 0)
+  }).length
+
+  return {
+    total,
+    noPosition,
+    noResume,
+    notSubmitted,
+    submitted,
+    hasInterv
+  }
+})
 
 // 即将到来的面试（今天及以后）
 const upcominginterv = computed(() => {
