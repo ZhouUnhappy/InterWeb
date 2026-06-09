@@ -215,12 +215,6 @@
 
         <!-- 概览统计 -->
         <div class="overview-section">
-          <div class="overview-header">
-            <h2>📊 概览（公司）</h2>
-            <div v-if="stats.noResume > 0" class="no-resume-warning">
-              ⚠️ 有 {{ stats.noResume }} 家公司未创建简历
-            </div>
-          </div>
           <div class="overview-stats">
             <div class="stat-item stat-total">
               <span class="stat-label">总计</span>
@@ -246,6 +240,9 @@
               <span class="stat-value">{{ stats.hasInterv }}</span>
               <span class="stat-percent">{{ getPercent(stats.hasInterv, stats.total) }}</span>
             </div>
+          </div>
+          <div v-if="stats.noResume > 0" class="no-resume-warning">
+            ⚠️ 有 {{ stats.noResume }} 家公司未创建简历
           </div>
         </div>
 
